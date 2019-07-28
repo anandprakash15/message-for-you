@@ -37,30 +37,22 @@ userSchema.pre('save', function(next) {
     console.log("Before Registering the user");
     // only hash the password if it has been modified (or is new)
     if (!user.isModified('password')) return next();
+    console.log(user.password);
+          user.password = user.password;
+          next();
 
-    // generate a salt
-    bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
-        if (err) return next(err);
-
-        // hash the password using our new salt
-        console.log("Salt");
-        bcrypt.hash(user.password, salt, function(err, hash) {
-            if (err) return next(err);
-
-            // override the cleartext password with the hashed one
-            user.password = hash;
-            console.log("Hash : "+hash);
-            next();
-        });
-    });
 });
 
 userSchema.methods.comparePassword = function(candidatePassword, cb) {
-    bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-        if (err) return cb(err);
-        cb(null, isMatch);
-    });
-};
+    console.log("candidatePassword "+ candidatePassword);
+    console.log("this password "+ this.password);
+
+    if(candidatePassword === this.password){
+      cb(null, true);
+    }else{
+      cb(false);
+    }
+}
 
 
 
@@ -78,18 +70,9 @@ var storiesSchema = new mongoose.Schema({
   imageLink:String,
   comments:[{body:String,commented_by:String,date:Date}],
   slug:String
+
 });
 
 // Build the User model
 
 mongoose.model( 'Story', storiesSchema,'stories');
-
-
-//extra schema for summary
-
-//var abcd = new mongooose.Schema({
-//    author:String,
-//    title:{type:String,unique:true},
-//});
-//
-//mongoose.model( 'abcd1', storiesSchema,'abcd');
